@@ -1,3 +1,14 @@
+Question: TASK3(Store Procedure/Functions)(40 marks)
+
+Create a store prodcedure which takes a JSON Array of following Object in a parameter 
+
+{CategoryID,BrandName,ProductName, Price ,Status}
+
+And insert all the records in the tables.
+
+
+
+
 USE exam2;
 
 CREATE TABLE Store (
