@@ -1,0 +1,61 @@
+use exam2;
+ 
+create table Store (
+	CategoryID int,
+    BrandName varchar(20),
+    ProductName varchar(20),
+    Price int,
+    Status varchar(10) check (Status in ('InStock','OutOfStock'))
+);
+ 
+delimiter %%
+create procedure insertData()
+begin
+	declare flag int default false; 
+	declare Cid int;
+    declare Bname varchar(20);
+    declare Pname varchar(20);
+    declare Pr int;
+    declare Stat varchar(10);
+    declare c1 cursor for select * from json_table(@json,"$[*]"
+			columns (
+			CategoryID int path "$.CategoryID",
+            BrandName varchar(20) path "$.BrandName",
+            ProductName varchar(20) path "$.ProductName",
+            Price int path "$.Price",
+            Status varchar(10) path "$.Status"
+        ))as temp;
+	DECLARE CONTINUE HANDLER FOR NOT FOUND SET flag = TRUE;
+	set @json='[
+	{
+	"CategoryID":1,
+        "BrandName":"HP",
+        "ProductName":"Laptop",
+        "Price":50000,
+        "Status":"InStock"
+	},
+	{
+	"CategoryID":2,
+        "BrandName":"HP",
+        "ProductName":"Mouse",
+        "Price":500,
+        "Status":"InStock"
+	}	
+    ]';
+    open c1;
+    new_loop:loop
+		fetch c1 into Cid,Bname,Pname,Pr,Stat;
+        if flag then
+			leave new_loop; 
+		end if;
+		insert into Store values (Cid,Bname,Pname,Pr,Stat);
+        select * from Store;
+	end loop;
+    close c1;
+end %%
+delimiter ;
+ 
+call insertData();
+ 
+drop table Store;
+drop Procedure insertData;
